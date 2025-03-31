@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Bicicleta{% endblock %}
+
+{% block content %}
+  <h2>Cadastrar Bicicleta</h2>
+  <form id="bicycleForm">
+    <label for="marca">Marca:</label>
+    <input type="text" id="marca" name="marca" required><br><br>
+    
+    <label for="modelo">Modelo:</label>
+    <input type="text" id="modelo" name="modelo" required><br><br>
+    
+    <label for="cor">Cor:</label>
+    <input type="text" id="cor" name="cor" required><br><br>
+    
+    <label for="preco">Preço:</label>
+    <input type="number" id="preco" name="preco" required><br><br>
+    
+    <label for="descricao">Descrição:</label>
+    <textarea id="descricao" name="descricao"></textarea><br><br>
+    
+    <button type="submit">Cadastrar Bicicleta</button>
+  </form>
+  <div id="bicycleMessage"></div>
+
+  <script>
+    document.getElementById('bicycleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const marca = document.getElementById('marca').value;
+      const modelo = document.getElementById('modelo').value;
+      const cor = document.getElementById('cor').value;
+      const preco = document.getElementById('preco').value;
+      const descricao = document.getElementById('descricao').value;
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Você precisa estar logado como administrador.");
+        return;
+      }
+      
+      const response = await fetch('/bicycles/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ marca, modelo, cor, preco, descricao })
+      });
+      
+      const data = await response.json();
+      document.getElementById('bicycleMessage').innerText = data.message || data.error;
+    });
+  </script>
+{% endblock %}

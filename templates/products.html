@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Loja{% endblock %}
+
+{% block content %}
+  <h2>Produtos</h2>
+  <div id="productsList">Carregando produtos...</div>
+  
+  <script>
+    async function loadProducts() {
+      const response = await fetch('/products');
+      const data = await response.json();
+      const productsDiv = document.getElementById('productsList');
+      
+      if (data.products && data.products.length > 0) {
+        productsDiv.innerHTML = "";
+        data.products.forEach(product => {
+          let displayName, displayDescription, displayPrice;
+          
+          // Se o item for uma bicicleta, use os campos específicos
+          if (product.type === 'bicycle') {
+            displayName = product.marca + " " + product.modelo;
+            displayDescription = product.descricao;
+            displayPrice = product.preco;
+          } else {
+            displayName = product.name;
+            displayDescription = product.description;
+            displayPrice = product.price;
+          }
+          
+          let productDiv = document.createElement("div");
+          productDiv.innerHTML = `
+            <h3>${displayName}</h3>
+            <p>${displayDescription}</p>
+            <p>Preço: ${displayPrice}</p>
+            <button onclick="addToCart('${product._id}')">Adicionar ao Carrinho</button>
+          `;
+          productsDiv.appendChild(productDiv);
+        });
+      } else {
+        productsDiv.innerText = "Nenhum produto encontrado.";
+      }
+    }
+    
+    async function addToCart(productId) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login-page';
+        return;
+      }
+      const response = await fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ product_id: productId, quantity: 1 })
+      });
+      const data = await response.json();
+      alert(data.message || data.error);
+    }
+    
+    loadProducts();
+  </script>
+{% endblock %}

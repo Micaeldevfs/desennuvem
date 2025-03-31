@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Carrinho de Compras{% endblock %}
+
+{% block content %}
+  <h2>Carrinho de Compras</h2>
+  <div id="cartItems">Carregando carrinho...</div>
+  
+  <script>
+    async function loadCart() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById('cartItems').innerText = "Você precisa fazer login para visualizar o carrinho.";
+        return;
+      }
+      const response = await fetch('/cart', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      const cartDiv = document.getElementById('cartItems');
+      if (data.cart && data.cart.length > 0) {
+        cartDiv.innerHTML = "";
+        data.cart.forEach(item => {
+          let itemDiv = document.createElement("div");
+          itemDiv.innerHTML = `
+            <h3>${item.product.name}</h3>
+            <p>Quantidade: ${item.quantity}</p>
+            <p>Preço: ${item.product.price}</p>
+            <button onclick="removeFromCart('${item.product._id}')">Remover</button>
+          `;
+          cartDiv.appendChild(itemDiv);
+        });
+      } else {
+        cartDiv.innerText = "O carrinho está vazio.";
+      }
+    }
+    
+    async function removeFromCart(productId) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Você precisa fazer login.");
+        return;
+      }
+      const response = await fetch('/cart/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ product_id: productId })
+      });
+      const data = await response.json();
+      alert(data.message || data.error);
+      loadCart();
+    }
+    
+    loadCart();
+  </script>
+{% endblock %}

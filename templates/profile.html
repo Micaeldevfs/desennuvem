@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil do Usuário{% endblock %}
+
+{% block content %}
+  <h2>Perfil do Usuário</h2>
+  
+  <!-- Botão de Sair visível somente quando o usuário está logado -->
+  <div id="logoutArea" style="text-align: right; margin-bottom: 10px;">
+    <button onclick="logout()">Sair</button>
+  </div>
+  
+  <div id="profileInfo">
+    Carregando informações...
+  </div>
+
+  <div id="adminPanel" style="display: none;">
+    <h3>Painel de Administração</h3>
+    <button onclick="loadAllUsers()">Ver Todos os Usuários</button>
+    <div id="usersList"></div>
+    <hr>
+    <button onclick="window.location.href='/admin/bicycle-page'">Cadastrar Bicicleta</button>
+    <button onclick="loadAllBicycles()">Editar Bicicletas</button>
+    <div id="bicyclesList"></div>
+  </div>
+
+  <script>
+    async function loadProfile() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById('profileInfo').innerText = "Você não está logado.";
+        // Esconde o botão de logout se não estiver logado
+        document.getElementById('logoutArea').style.display = "none";
+        return;
+      }
+      const response = await fetch('/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      if (data.user) {
+        let html = `
+          <p><strong>Nome:</strong> ${data.user.nome}</p>
+          <p><strong>Email:</strong> ${data.user.email}</p>
+          <p><strong>CPF:</strong> ${data.user.cpf}</p>
+          <p><strong>Tipo de Usuário:</strong> ${data.user.is_admin ? "Administrador" : "Usuário Simples"}</p>
+          <p><strong>Consentimento LGPD:</strong> ${data.user.lgpd_consent ? "Aceito" : "Não Aceito"}</p>
+        `;
+        document.getElementById('profileInfo').innerHTML = html;
+        if (data.user.is_admin) {
+          document.getElementById('adminPanel').style.display = "block";
+        }
+      } else {
+        document.getElementById('profileInfo').innerText = data.error;
+      }
+    }
+    
+    async function loadAllUsers() {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/admin/users', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      let html = "<ul>";
+      if (data.users && data.users.length) {
+          data.users.forEach(user => {
+              html += `<li>${user.nome} (${user.email})
+                      <button onclick="window.location.href='/admin/edit-user-page?user_id=${user._id}'">Editar dados do usuário</button>
+                      </li>`;
+          });
+      } else {
+          html = "Nenhum usuário encontrado.";
+      }
+      html += "</ul>";
+      document.getElementById('usersList').innerHTML = html;
+    }
+
+    async function loadAllBicycles() {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/admin/bicycles', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await response.json();
+      let html = "<ul>";
+      if (data.bicycles && data.bicycles.length) {
+          data.bicycles.forEach(bicycle => {
+              html += `<li>${bicycle.marca} ${bicycle.modelo} (${bicycle.preco})
+                      <button onclick="window.location.href='/admin/edit-bicycle-page?bicycle_id=${bicycle._id}'">Editar Bicicleta</button>
+                      </li>`;
+          });
+      } else {
+          html = "Nenhuma bicicleta encontrada.";
+      }
+      html += "</ul>";
+      document.getElementById('bicyclesList').innerHTML = html;
+    }
+    
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login-page';
+    }
+    
+    loadProfile();
+  </script>
+{% endblock %}

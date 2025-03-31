@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Bicicleta{% endblock %}
+
+{% block content %}
+  <h2>Editar Bicicleta</h2>
+  <form id="editBicycleForm">
+    <input type="hidden" id="bicycle_id" name="bicycle_id">
+    <label for="marca">Marca:</label>
+    <input type="text" id="marca" name="marca" required><br><br>
+    
+    <label for="modelo">Modelo:</label>
+    <input type="text" id="modelo" name="modelo" required><br><br>
+    
+    <label for="cor">Cor:</label>
+    <input type="text" id="cor" name="cor" required><br><br>
+    
+    <label for="preco">Preço:</label>
+    <input type="number" id="preco" name="preco" required><br><br>
+    
+    <label for="descricao">Descrição:</label>
+    <textarea id="descricao" name="descricao"></textarea><br><br>
+    
+    <button type="submit">Salvar Alterações</button>
+  </form>
+  <div id="editBicycleMessage"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const bicycle_id = urlParams.get('bicycle_id');
+    if (bicycle_id) {
+      document.getElementById('bicycle_id').value = bicycle_id;
+      fetch('/admin/bicycles/' + bicycle_id, {
+        headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}
+      })
+      .then(response => response.json())
+      .then(data => {
+         if (data.bicycle) {
+            document.getElementById('marca').value = data.bicycle.marca || "";
+            document.getElementById('modelo').value = data.bicycle.modelo || "";
+            document.getElementById('cor').value = data.bicycle.cor || "";
+            document.getElementById('preco').value = data.bicycle.preco || "";
+            document.getElementById('descricao').value = data.bicycle.descricao || "";
+         } else {
+            document.getElementById('editBicycleMessage').innerText = data.error;
+         }
+      });
+    }
+    document.getElementById('editBicycleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bicycle_id = document.getElementById('bicycle_id').value;
+      const marca = document.getElementById('marca').value;
+      const modelo = document.getElementById('modelo').value;
+      const cor = document.getElementById('cor').value;
+      const preco = document.getElementById('preco').value;
+      const descricao = document.getElementById('descricao').value;
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Você precisa estar logado como administrador.");
+        return;
+      }
+      
+      const response = await fetch('/admin/edit-bicycle/' + bicycle_id, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ marca, modelo, cor, preco, descricao })
+      });
+      const data = await response.json();
+      document.getElementById('editBicycleMessage').innerText = data.message || data.error;
+    });
+  </script>
+{% endblock %}

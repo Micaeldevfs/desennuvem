@@ -1,0 +1,113 @@
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f4f4;
+  color: #333;
+  padding-bottom: 70px; /* Para deixar espaço para o footer fixo */
+}
+
+/* Header */
+header {
+  background: linear-gradient(90deg, #4a90e2, #357ABD);
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.5em;
+}
+
+/* Navegação */
+nav {
+  background: #333;
+}
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+nav ul li {
+  margin: 0;
+}
+nav ul li a,
+nav ul li button {
+  display: block;
+  padding: 15px 20px;
+  color: #fff;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+nav ul li a:hover,
+nav ul li button:hover {
+  background: #4a90e2;
+}
+
+/* Conteúdo principal */
+.content {
+  background: #fff;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Formulários */
+form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Botões */
+button {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+button:hover {
+  background: #357ABD;
+}
+
+/* Footer */
+footer {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 15px 20px;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
